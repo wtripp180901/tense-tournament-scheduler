@@ -1,0 +1,37 @@
+.matchupBox{
+	width: 300px;
+	background-color: blue;
+}
+
+#sidebar{
+  height: 100%; /* Full-height: remove this if you want "auto" height */
+  width: 25%; /* Set the width of the sidebar */
+  position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+  z-index: 1; /* Stay on top */
+  top: 0; /* Stay at the top */
+  right: 0;
+  background-color: white; /* Black */
+  border-style: solid;
+  text-align: center;
+  
+}
+
+#board{
+	width: 75%;
+	overflow: scroll;
+}
+
+#leaderboard{
+	margin:auto;
+	
+}
+
+table, tr,td{
+	border-style:solid;
+	border-collapse: collapse;
+	border-width: 1px;
+}
+
+.leadercell{
+	border-style:solid;
+}
