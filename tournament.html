@@ -3,19 +3,19 @@
 <link rel="stylesheet" href="style.css">
 <body onload="NextRound()">
 	<div id="board">
-		<table id="matchTable">
+		<table id="roundTable">
 		
 		</table>
 	</div>
 	<div id="sidebar">
-		<table id="leaderboard">
+		<table id="leaderboard" class="borderedTable">
 			<tr>
 				<td>#</td>
 				<td>Player</td>
 				<td>Score</td>
 			</tr>
 		</table>
-		<button onclick="NextRound()">Next round</button>
+		<button id='nextRoundButton' onclick="NextRound()">Next round</button>
 	</div>
 
 </body>

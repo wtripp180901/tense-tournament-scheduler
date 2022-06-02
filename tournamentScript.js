@@ -1,9 +1,8 @@
 let players = JSON.parse(new URLSearchParams(window.location.search).get("names"));
 
-console.log("Matches: "+((players.length * players.length) - players.length)/(2*(players.length/2)));
-
 let rounds = getAllRounds();
 let roundNumber = 0;
+const totalRounds = players.length-1;
 let scoreMap = new Map();
 
 for(z = 0;z < players.length;z++){
@@ -15,24 +14,31 @@ function NextRound(){
 	getScores();
 	updateLeaderBoard();
 	
-	let bestRoundIndex;
-	let bestRound;
-	let bestScore = -1;
-	for(i = 0;i < rounds.length;i++){
-		let currentScore = score(rounds[i]);
-		if(currentScore > bestScore){
-			bestRoundIndex = i;
-			bestRound = rounds[i];
-			bestScore = currentScore;
+	if(roundNumber < totalRounds){
+		let bestRoundIndex;
+		let bestRound;
+		let bestScore = -1;
+		for(i = 0;i < rounds.length;i++){
+			let currentScore = score(rounds[i],false);
+			if(currentScore > bestScore){
+				bestRoundIndex = i;
+				bestRound = rounds[i];
+				bestScore = currentScore;
+			}
+		}
+		rounds.splice(bestRoundIndex,1);
+	
+		//TODO: order matches so players with lowest score are leftmost
+	
+		roundNumber++;
+		makeRoundTables(bestRound);
+	}else{
+		document.getElementById("nextRoundButton").remove();
+		let winners = document.getElementsByClassName("winnerRow");
+		for(j = 0;j < winners.length;j++){
+			winners[j].style.backgroundColor = "#2d8122";
 		}
 	}
-	rounds.splice(bestRoundIndex,1);
-	
-	//TODO: order matches so players with lowest score are leftmost
-	
-	roundNumber++;
-	makeRoundTables(bestRound);
-	return bestRound;
 }
 
 function updateLeaderBoard(){
@@ -54,6 +60,7 @@ function updateLeaderBoard(){
 		
 		let row = leaderboard.insertRow();
 		row.setAttribute('class','leaderboardRow');
+		if(currentRank == 1) row.setAttribute('class','winnerRow leaderboardRow');
 		row.insertCell().innerHTML = currentRank;
 		row.insertCell().innerHTML = players[i];
 		row.insertCell().innerHTML = currentScore;
@@ -63,19 +70,24 @@ function updateLeaderBoard(){
 function getScores(){
 	if(roundNumber > 0){
 		for(i = 0;i < players.length;i++){
-			scoreMap.set(players[i],scoreMap.get(players[i]) + parseInt(document.getElementById(players[i]+"Score"+roundNumber).value));
+			scoreMap.set(players[i],scoreMap.get(players[i]) + parseFloat(document.getElementById(players[i]+"Score"+roundNumber).value));
 		}
 	}
 }
 
-function score(matches){
+function score(matches,tiebreak){
 	if(matches == null){
 		return -1;
 	}else{
 	let score = 0;
 	for(l = 0;l < matches.length;l++){
-		let raw = scoreMap.get(matches[l].p1) - scoreMap.get(matches[l].p2);
-		score += raw * raw;
+		const p1Score = scoreMap.get(matches[l].p1);
+		const p2Score = scoreMap.get(matches[l].p2);
+		const raw = p1Score - p2Score;
+		let mod = 1;
+		if(tiebreak) mod = p1Score + p2Score;
+		
+		score += raw * raw * mod;
 	}
 	return score;
 	}
@@ -114,17 +126,19 @@ function getAllRounds(){
 }
 
 function makeRoundTables(currentRounds){
-	const parentTable = document.getElementById("matchTable");
+	const parentTable = document.getElementById("roundTable");
 	const row = parentTable.insertRow();
 	let cells = []
 	for(i = 0;i < currentRounds.length;i++){
 		let currentCell = row.insertCell();
 		let currentTable = document.createElement('table');
+		currentTable.setAttribute('class','matchTable borderedTable');
 		
 		let nameRow = currentTable.insertRow();
 		nameRow.insertCell().innerHTML = currentRounds[i].p1;
 		nameRow.insertCell().innerHTML = currentRounds[i].p2;
 		
+		//TODO: replace previous inputs with text
 		let scoreRow = currentTable.insertRow();
 		scoreRow.insertCell().innerHTML = "<input id=\""+currentRounds[i].p1+"Score"+roundNumber+"\"></input>";
 		scoreRow.insertCell().innerHTML = "<input id=\""+currentRounds[i].p2+"Score"+roundNumber+"\"></input>";
